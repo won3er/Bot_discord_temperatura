@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Discord Weather Bot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+            <div class="container">
+                <a class="navbar-brand" href="/">
+                    <i class="fab fa-discord me-2"></i>
+                    Discord Weather Bot - Dashboard
+                </a>
+                <div class="navbar-nav">
+                    <a class="nav-link" href="/">
+                        <i class="fas fa-home me-1"></i>
+                        Interface Principal
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+            <!-- Statistics Overview -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="mb-4">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Estatísticas do Bot
+                    </h2>
+                </div>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="row mb-4" id="metricsCards">
+                <!-- Metrics will be loaded here -->
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                    <p class="mt-2">Carregando estatísticas...</p>
+                </div>
+            </div>
+
+            <!-- Charts and Lists -->
+            <div class="row mb-4">
+                <!-- Popular Cities -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-light">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-fire me-2"></i>
+                                Cidades Mais Populares
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="popularCitiesList">
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Carregando...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Queries -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-light">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-clock me-2"></i>
+                                Consultas Recentes
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="recentQueriesList" style="max-height: 400px; overflow-y: auto;">
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Carregando...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-light text-center py-4 mt-5">
+            <div class="container">
+                <p class="text-muted mb-1">
+                    <i class="fas fa-database me-2"></i>
+                    Dashboard do Discord Weather Bot
+                </p>
+                <p class="text-muted mb-0">
+                    <small>Estatísticas em tempo real do uso do bot</small>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class Dashboard {
+            constructor() {
+                this.init();
+            }
+
+            async init() {
+                await this.loadOverviewStats();
+                await this.loadPopularCities();
+                await this.loadRecentQueries();
+                
+                // Refresh data every 30 seconds
+                setInterval(() => {
+                    this.loadOverviewStats();
+                    this.loadRecentQueries();
+                }, 30000);
+            }
+
+            async loadOverviewStats() {
+                try {
+                    const response = await fetch('/api/stats/overview');
+                    if (!response.ok) throw new Error('Failed to load stats');
+                    
+                    const stats = await response.json();
+                    this.displayOverviewStats(stats);
+                } catch (error) {
+                    console.error('Error loading overview stats:', error);
+                    this.showError('#metricsCards', 'Erro ao carregar estatísticas gerais');
+                }
+            }
+
+            displayOverviewStats(stats) {
+                const metricsDiv = document.getElementById('metricsCards');
+                metricsDiv.innerHTML = `
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm text-center bg-primary text-white">
+                            <div class="card-body">
+                                <div class="display-6 fw-bold">${stats.total_queries}</div>
+                                <div class="fs-6">Total de Consultas</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm text-center bg-success text-white">
+                            <div class="card-body">
+                                <div class="display-6 fw-bold">${stats.unique_cities}</div>
+                                <div class="fs-6">Cidades Consultadas</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm text-center bg-info text-white">
+                            <div class="card-body">
+                                <div class="display-6 fw-bold">${stats.discord_queries}</div>
+                                <div class="fs-6">Via Discord</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm text-center bg-warning text-white">
+                            <div class="card-body">
+                                <div class="display-6 fw-bold">${stats.web_queries}</div>
+                                <div class="fs-6">Via Web</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="text-success">
+                                            <i class="fas fa-check-circle fs-4"></i>
+                                            <div class="fw-bold">${stats.successful_queries}</div>
+                                            <small>Sucessos</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-danger">
+                                            <i class="fas fa-times-circle fs-4"></i>
+                                            <div class="fw-bold">${stats.failed_queries}</div>
+                                            <small>Falhas</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-primary">
+                                            <i class="fas fa-percentage fs-4"></i>
+                                            <div class="fw-bold">${stats.success_rate.toFixed(1)}%</div>
+                                            <small>Taxa de Sucesso</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            async loadPopularCities() {
+                try {
+                    const response = await fetch('/api/stats/popular-cities');
+                    if (!response.ok) throw new Error('Failed to load popular cities');
+                    
+                    const cities = await response.json();
+                    this.displayPopularCities(cities);
+                } catch (error) {
+                    console.error('Error loading popular cities:', error);
+                    this.showError('#popularCitiesList', 'Erro ao carregar cidades populares');
+                }
+            }
+
+            displayPopularCities(cities) {
+                const listDiv = document.getElementById('popularCitiesList');
+                
+                if (cities.length === 0) {
+                    listDiv.innerHTML = '<p class="text-muted text-center">Nenhuma consulta registrada ainda</p>';
+                    return;
+                }
+
+                const citiesList = cities.map((city, index) => `
+                    <div class="d-flex justify-content-between align-items-center py-2 ${index < cities.length - 1 ? 'border-bottom' : ''}">
+                        <div>
+                            <strong>${city.city_name}</strong>
+                            <small class="text-muted ms-2">${city.state}</small>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold">${city.total_queries}</div>
+                            <small class="text-muted">consultas</small>
+                        </div>
+                    </div>
+                `).join('');
+
+                listDiv.innerHTML = citiesList;
+            }
+
+            async loadRecentQueries() {
+                try {
+                    const response = await fetch('/api/stats/recent-queries');
+                    if (!response.ok) throw new Error('Failed to load recent queries');
+                    
+                    const queries = await response.json();
+                    this.displayRecentQueries(queries);
+                } catch (error) {
+                    console.error('Error loading recent queries:', error);
+                    this.showError('#recentQueriesList', 'Erro ao carregar consultas recentes');
+                }
+            }
+
+            displayRecentQueries(queries) {
+                const listDiv = document.getElementById('recentQueriesList');
+                
+                if (queries.length === 0) {
+                    listDiv.innerHTML = '<p class="text-muted text-center">Nenhuma consulta registrada ainda</p>';
+                    return;
+                }
+
+                const queriesList = queries.map((query, index) => {
+                    const timestamp = new Date(query.timestamp);
+                    const timeAgo = this.getTimeAgo(timestamp);
+                    const sourceIcon = query.query_source === 'discord' ? 'fab fa-discord' : 'fas fa-globe';
+                    const statusIcon = query.success ? 'fas fa-check-circle text-success' : 'fas fa-times-circle text-danger';
+                    
+                    return `
+                        <div class="d-flex justify-content-between align-items-center py-2 ${index < queries.length - 1 ? 'border-bottom' : ''}">
+                            <div>
+                                <div class="d-flex align-items-center mb-1">
+                                    <i class="${sourceIcon} me-2"></i>
+                                    <strong>${query.city_name}</strong>
+                                    <small class="text-muted ms-2">${query.state}</small>
+                                    <i class="${statusIcon} ms-2"></i>
+                                </div>
+                                <small class="text-muted">${timeAgo}</small>
+                                ${query.temperature !== null ? `<small class="text-primary ms-2">${query.temperature}°C</small>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                listDiv.innerHTML = queriesList;
+            }
+
+            getTimeAgo(timestamp) {
+                const now = new Date();
+                const diff = now - timestamp;
+                const seconds = Math.floor(diff / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const hours = Math.floor(minutes / 60);
+                const days = Math.floor(hours / 24);
+
+                if (days > 0) return `${days} dia${days > 1 ? 's' : ''} atrás`;
+                if (hours > 0) return `${hours} hora${hours > 1 ? 's' : ''} atrás`;
+                if (minutes > 0) return `${minutes} minuto${minutes > 1 ? 's' : ''} atrás`;
+                return 'Agora mesmo';
+            }
+
+            showError(selector, message) {
+                const element = document.querySelector(selector);
+                element.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${message}
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new Dashboard();
+        });
+    </script>
+</body>
+</html>

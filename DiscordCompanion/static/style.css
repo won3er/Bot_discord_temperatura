@@ -1,0 +1,204 @@
+:root {
+    --discord-color: #5865F2;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+}
+
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.bg-discord {
+    background-color: var(--discord-color) !important;
+}
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.card {
+    transition: transform 0.2s ease-in-out;
+    border-radius: 15px;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.city-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    background: white;
+    border: 1px solid #e9ecef;
+    min-height: 120px;
+}
+
+.city-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border-color: var(--discord-color);
+}
+
+.city-card h6 {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.city-grid-responsive {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .city-grid-responsive {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 0.75rem;
+    }
+}
+
+.city-card.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.weather-display {
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+}
+
+.weather-display.hot {
+    background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+}
+
+.weather-display.cold {
+    background: linear-gradient(135deg, #81ecec 0%, #00b894 100%);
+}
+
+.weather-display.warm {
+    background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+}
+
+.temperature-big {
+    font-size: 3rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.weather-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+code {
+    background-color: #f8f9fa;
+    color: #e83e8c;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+}
+
+.btn-primary {
+    background-color: var(--discord-color);
+    border-color: var(--discord-color);
+}
+
+.btn-primary:hover {
+    background-color: #4752c4;
+    border-color: #4752c4;
+}
+
+.form-select:focus {
+    border-color: var(--discord-color);
+    box-shadow: 0 0 0 0.2rem rgba(88, 101, 242, 0.25);
+}
+
+.list-unstyled li {
+    padding: 0.25rem 0;
+}
+
+footer {
+    margin-top: auto;
+}
+
+/* Loading animation */
+.loading-pulse {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .temperature-big {
+        font-size: 2.5rem;
+    }
+    
+    .weather-display {
+        padding: 1.5rem;
+    }
+    
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+/* Alert styles */
+.alert-custom {
+    border: none;
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #00b894, #00cec9);
+    color: white;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #e17055, #d63031);
+    color: white;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fdcb6e, #e17055);
+    color: white;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--discord-color);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4752c4;
+}
